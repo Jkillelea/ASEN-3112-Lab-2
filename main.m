@@ -4,17 +4,37 @@ close all;
 
 load data % gets dumped into a variable named data
 
-load_case = data(:, 1);             % lbf
-f0        = lbf2newton(data(:, 2)); % newtons
-f1        = lbf2newton(data(:, 3));
-f2        = lbf2newton(data(:, 4));
-f3        = lbf2newton(data(:, 5));
-lvdt      = in2mm(data(:, 6));      % mm
+load_case = data(:, 1);        % lbf
+f0   = lbf2newton(data(:, 2)); % newtons
+f1   = lbf2newton(data(:, 3));
+f2   = lbf2newton(data(:, 4));
+f3   = lbf2newton(data(:, 5));
+lvdt = in2mm(data(:, 6));      % mm
 
-figure; hold on; grid on;
 cases = unique(load_case);
+loads      = zeros(1, length(cases));
+deflection = zeros(1, length(cases));
+sigmas     = zeros(1, length(cases));
+
 for i = 1:length(cases)
   c = cases(i);
   idxs = load_case == c;
-  plot(load_case(idxs), lvdt(idxs), 'LineWidth', 2);
+
+  loads(i)      = c;                % load value (lbs)
+  deflection(i) = mean(lvdt(idxs)); % midspan deflection (mm)
+  sigmas(i)     = std(lvdt(idxs));  % std deviation
 end
+
+figure; hold on; grid on;
+errorbar(loads, deflection, sigmas, 'o', 'LineWidth', 2);
+title('Load case vs deflection, loads in lbs')
+xlabel('Load amount (lbs)');
+ylabel('Midspan deflection (downwards, mm)');
+print('deflection_lbs', '-dpng')
+
+figure; hold on; grid on;
+errorbar(lbf2newton(loads), deflection, sigmas, 'o', 'LineWidth', 2);
+title('Load case vs deflection, loads in N')
+xlabel('Load amount (N)');
+ylabel('Midspan deflection (downwards, mm)');
+print('deflection_N', '-dpng')
