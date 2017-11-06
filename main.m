@@ -5,11 +5,11 @@ close all;
 load data % gets dumped into a variable named data
 
 load_case = data(:, 1);        % lbf
+lvdt = in2mm(data(:, 6));      % mm
 f0   = lbf2newton(data(:, 2)); % newtons
 f1   = lbf2newton(data(:, 3));
 f2   = lbf2newton(data(:, 4));
 f3   = lbf2newton(data(:, 5));
-lvdt = in2mm(data(:, 6));      % mm
 
 cases = unique(load_case);
 loads      = zeros(1, length(cases));
@@ -24,6 +24,8 @@ for i = 1:length(cases)
   deflection(i) = mean(lvdt(idxs)); % midspan deflection (mm)
   sigmas(i)     = std(lvdt(idxs));  % std deviation
 end
+
+fprintf('Max deflection %.2f mm downwards\n', max(deflection));
 
 figure; hold on; grid on;
 errorbar(loads, deflection, sigmas, 'o', 'LineWidth', 2);
